@@ -1,33 +1,36 @@
 package main
 
 import (
+	"chrishayes042/pkg/model"
 	"encoding/csv"
 	"encoding/json"
-	// "encoding/json"
-	"chrishayes042/pkg/model"
 	"errors"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 )
 
+// Main read method. This will get all of the data in the csv file
+// and convert it to a JSON to be returned and picked up by the front end
 func readCsvFile(w http.ResponseWriter, r *http.Request) {
-	f, err := os.Open("tornados.csv")
+	// open the csv
+	f, err := os.Open("tornados copy.csv")
 	if err != nil {
 		log.Fatal("Unable to read input file ", err)
 	}
 	defer f.Close()
-
+	// read the csv
 	csvReader := csv.NewReader(f)
+	// put the data into a variable to be looped through
 	records, err := csvReader.ReadAll()
 	if err != nil {
 		log.Fatal("Unable to parse file as CSV for ", err)
 	}
-
-	// tData := mapRecords(records)
-	// tornado := model.TornadoData
+	// create a new type of array to create the JSON
 	var tornados []model.TornadoData
+	// loop through the csv data
 	for _, line := range records {
 		a := model.TornadoData{
 			Id:                line[0],
@@ -58,20 +61,26 @@ func readCsvFile(w http.ResponseWriter, r *http.Request) {
 			FipsCdCounty4:     line[25],
 			MagnitudeEst:      line[26],
 		}
+
+		// append each loop of data to the types array
 		tornados = append(tornados, a)
 	}
+	// CORS things
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
+	// create the json
 	json.NewEncoder(w).Encode(tornados)
 }
 
 func main() {
+	// create the http server
 	mux := http.NewServeMux()
-	mux.HandleFunc("/api/singleDayStock", readCsvFile)
+	// create the endpoint to hit to get the csv data
+	mux.HandleFunc("/api/readAllData", readCsvFile)
 	// mux.HandleFunc("/api/hello", getHello)
-
+	// create the listener on port
 	err := http.ListenAndServe(":3333", mux)
 	if errors.Is(err, http.ErrServerClosed) {
 		fmt.Printf("Server closed\n")
@@ -81,37 +90,3 @@ func main() {
 		os.Exit(1)
 	}
 }
-
-// func mapRecords(records [][]string) model.TornadoData {
-// 	tornado := new(model.TornadoData)
-
-// 	for _, line := range records {
-// 			tornado.Id =  line[0],
-// 			tornado.Year ==              line[1],
-// 			tornado.Month ==            line[2],
-// 			tornado.Day ==               line[3],
-// 			tornado.Date ==               line[4],
-// 			tornado.Time ==              line[5],
-// 			tornado.TimeZone ==          line[6],
-// 			tornado.State ==             line[7],
-// 			tornado.StateFip ==          line[8],
-// 			tornado.Magnitude ==        line[9],
-// 			tornado.Injuries==          line[10],
-// 			tornado.Fatalities ==        line[11],
-// 			tornado.PropertyLoss ==      line[12],
-// 			tornadoStartingLongitude == line[13],
-// 			tornado.StartingLatitude ==  line[14],
-// 			tornado.EndingLongitude ==   line[15],
-// 			tornado.EndingLatitude ==    line[16],
-// 			tornado.Length ==            line[17],
-// 			tornado.Width ==             line[18],
-// 			tornado.StatesAff ==          line[19],
-// 			tornado.StatesNumber ==      line[20],
-// 			tornado.FipsCdCounty1 ==     line[21],
-// 			tornado.FipsCdCounty2 ==     line[22],
-// 			tornado.FipsCdCounty3 ==     line[23],
-// 			tornado.FipsCdCounty4 ==     line[24],
-// 			tornado.MagnitudeEst ==      line[25],
-// 		}
-// 		return *tornado
-// 	}
