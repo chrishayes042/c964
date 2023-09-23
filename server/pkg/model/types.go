@@ -1,4 +1,4 @@
-package main
+package model
 
 type TornadoData struct {
 	Id                string `json:"id"`
