@@ -33,3 +33,16 @@ export interface TornadoReport {
 export const tornadoReport: TornadoReport = {
   tornadoReport: [],
 };
+export interface TornadoDecadeData {
+  decade: string;
+  fatalities: string;
+  injuries: string;
+  propertyLoss: string;
+  avgMagnitude: string;
+}
+export interface DecadeReport {
+  decadeReport: TornadoDecadeData[];
+}
+export const decadeReports: DecadeReport = {
+  decadeReport: [],
+};

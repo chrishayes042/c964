@@ -9,7 +9,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 )
 
 // Main read method. This will get all of the data in the csv file
@@ -73,12 +72,45 @@ func readCsvFile(w http.ResponseWriter, r *http.Request) {
 	// create the json
 	json.NewEncoder(w).Encode(tornados)
 }
-
+func getDecadeData(w http.ResponseWriter, r *http.Request) {
+	// open the csv
+	f, err := os.Open("decades.csv")
+	if err != nil {
+		log.Fatal("Unable to read input file ", err)
+	}
+	defer f.Close()
+	// read the csv
+	csvReader := csv.NewReader(f)
+	// put the data into a variable to be looped through
+	records, err := csvReader.ReadAll()
+	if err != nil {
+		log.Fatal("Unable to parse file as CSV for ", err)
+	}
+	var decadeData []model.TornadoDecade
+	for _, line := range records {
+		a := model.TornadoDecade{
+			Decade:       line[0],
+			Fatalities:   line[1],
+			Injuries:     line[2],
+			PropertyLoss: line[3],
+			AvgMagnitude: line[4],
+		}
+		decadeData = append(decadeData, a)
+	}
+	// CORS things
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	// create the json
+	json.NewEncoder(w).Encode(decadeData)
+}
 func main() {
 	// create the http server
 	mux := http.NewServeMux()
 	// create the endpoint to hit to get the csv data
 	mux.HandleFunc("/api/readAllData", readCsvFile)
+	mux.HandleFunc("/api/getDecadeData", getDecadeData)
 	// mux.HandleFunc("/api/hello", getHello)
 	// create the listener on port
 	err := http.ListenAndServe(":3333", mux)

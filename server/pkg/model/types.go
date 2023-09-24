@@ -29,3 +29,11 @@ type TornadoData struct {
 	FipsCdCounty4     string `json:"fipsCdCounty4"`
 	MagnitudeEst      string `json:"manitudeEst"`
 }
+
+type TornadoDecade struct {
+	Decade       string `json:"decade"`
+	Fatalities   string `json:"fatalities"`
+	Injuries     string `json:"injuries"`
+	PropertyLoss string `json:"propertyLoss"`
+	AvgMagnitude string `json:"avgMagnitude"`
+}
