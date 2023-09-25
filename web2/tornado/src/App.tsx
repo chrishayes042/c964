@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
-import { DemoComponent, UseDecadeData } from "./Components/ChartComponent";
-import { PieGraphComponent, GetPieData } from "./Components/PieGraphComponent";
-import { MainTable, TableComponent } from "./Components/TableComponent";
+import AreaChartData from "./Components/ChartComponent";
+import PieChartData, {
+  PieGraphComponent,
+  GetPieData,
+} from "./Components/PieGraphComponent";
+import TableData from "./Components/TableComponent";
 import "./App.css";
 import { getAllData, getTornadoDecadeData } from "./Api";
 import {
@@ -10,66 +13,91 @@ import {
   TornadoDecadeData,
   decadeReports,
 } from "./Tornado";
+import {
+  AreaChart,
+  Area,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+} from "recharts";
+import { ChartData } from "./ChartData";
 function App() {
   const [tornado, setTornado] = useState<Tornado[]>(Object);
   const [tornadoReport, setTornadoReport] = useState<Tornado[]>();
   const [decadeData, setDecadeData] = useState<TornadoDecadeData[]>([]);
   const [decadeDataList, setDecadeDataList] = useState<TornadoDecadeData[]>();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const tornadoRep = tornadoReport;
+
   // const decadeDataList = decadeReports;
   useEffect(() => {
     getData();
-    // getDecadeData();
   }, []);
-  useEffect(() => {
-    if (tornado !== null) {
-      console.log("set report");
-      // setTornadoReport(tornado);
-    }
-  }, []);
+  useEffect(() => {}, []);
   async function getData() {
-    setTornado(await getAllData());
-    setTornado((state) => ({ ...state, tornado: tornado }));
+    try {
+      setLoading(true);
+      const tornadoData = await getAllData();
+      setTornado(tornadoData);
+      // setTornado((state) => ({ ...state, tornado: tornado }));
+    } catch (e: any) {
+      setError(e);
+    } finally {
+      setLoading(false);
+    }
   }
-  async function getTableData() {}
-  const setTableData = (t: Tornado[]) => {
-    t.map((e, index) => {
-      if (index == 0) {
-        return;
-      } else {
-        tornadoRep.tornadoReport.push(e);
-      }
-    });
-    TableComponent(tornado);
-  };
+  // async function getTableData() {}
+  // const setTableData = (t: Tornado[]) => {
+  //   t.map((e, index) => {
+  //     if (index == 0) {
+  //       return;
+  //     } else {
+  //       tornadoRep.tornadoReport.push(e);
+  //     }
+  //   });
+  //   TableComponent(tornado);
+  // };
 
   async function getDecadeData() {
     setDecadeData(await getTornadoDecadeData());
     setDecadeData((state) => ({ ...state, decadedata: decadeData }));
     setDecadeDataList(decadeData);
-    if (decadeDataList !== undefined) {
-      UseDecadeData(decadeDataList);
-    }
-    GetPieData(decadeDataList);
+    // if (decadeDataList !== undefined) {
+    // }
+    // GetPieData(decadeDataList);
+  }
+  function checkData() {
+    console.log(decadeData);
+    console.log(tornado);
+    console.log(decadeDataList);
   }
 
   return (
     <>
-      {/* {decadeDataList.decadeReport.length > 0 ? (
+      {/* <div>
+        {decadeData[0] ? (
+          <AreaChart chartProp={decadeDataList} />
+        ) : (
+          <p>eaouu</p>
+        )}
+      </div> */}
+      {!loading ? (
         <div>
-          {" "}
-          <DemoComponent /> <PieGraphComponent />{" "}
+          <TableData /> <PieChartData />{" "}
         </div>
-      ) : null} */}
+      ) : (
+        <p>Loading...</p>
+      )}
       <div className="container flex justify-center">
         <div className="flex items-center justify-center w-32 bg-gray-200 rounded-full hover:bg-gray-400">
-          <button onClick={() => getData()}>get csv data</button>
+          <button onClick={() => checkData()}>get csv data</button>
         </div>
       </div>
-      {tornadoRep.tornadoReport.length > 0 ? <MainTable /> : <p>hi</p>}
-      {tornado.length ? <p>{}</p> : <p>nothing</p>}
+      {/* {tornadoRep.tornadoReport.length > 0 ? <MainTable /> : <p>hi</p>}
+      {tornado.length ? <p>{}</p> : <p>nothing</p>} */}
     </>
   );
 }
-
 export default App;

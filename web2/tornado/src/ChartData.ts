@@ -1,7 +1,7 @@
 export interface ChartData {
   year: string;
   fatalities: string;
-  magnitude: string;
+  avgmagnitude: string;
   propLoss: string;
   injuries: string;
 }
