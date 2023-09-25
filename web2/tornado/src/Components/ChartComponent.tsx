@@ -1,8 +1,6 @@
 import {
-  LineChart,
   AreaChart,
   Area,
-  Line,
   CartesianGrid,
   XAxis,
   YAxis,
@@ -11,27 +9,25 @@ import {
 import { decadeReports } from "../Tornado";
 import { ChartData } from "../ChartData";
 
-let decadeData = decadeReports;
-export function UseDecadeData(e: typeof decadeReports) {
-  decadeData = e;
+const decadeData: any[] = [];
+export function UseDecadeData(e: (typeof decadeReports)[]) {
+  e.map((e) => {
+    decadeData.push(e);
+  });
   dataForChart();
 }
 const dataForChart = () => {
   let chartData: ChartData;
-  let data: any[] = [];
-  decadeData.decadeReport.map((e, index) => {
-    if (index == 0) {
-      return;
-    } else {
-      chartData = {
-        year: e.decade,
-        fatalities: e.fatalities,
-        magnitude: e.avgMagnitude,
-        propLoss: e.propertyLoss,
-        injuries: e.injuries,
-      };
-      data.push(chartData);
-    }
+  const data: any[] = [];
+  decadeData.map((e) => {
+    chartData = {
+      year: e.decade,
+      fatalities: e.fatalities,
+      magnitude: e.avgMagnitude,
+      propLoss: e.propertyLoss,
+      injuries: e.injuries,
+    };
+    data.push(chartData);
   });
   return data;
 };

@@ -1,5 +1,6 @@
 import { decadeReports } from "../Tornado";
 import { ChartData } from "../ChartData";
+import { PieChart, Tooltip, Pie } from "recharts";
 
 let decadeData = decadeReports;
 export function GetPieData(e: typeof decadeReports) {
@@ -32,7 +33,7 @@ const renderPieChart = (
       dataKey="propLoss"
       nameKey="year"
       cx="50%"
-      outRadius={50}
+      outerRadius={50}
       fill="8884d8"
     />
     <Tooltip />

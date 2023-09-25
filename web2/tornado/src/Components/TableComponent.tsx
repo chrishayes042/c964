@@ -1,7 +1,9 @@
-import { tornadoReport } from "../Tornado";
-let tReport = tornadoReport;
-export function TableComponent(e: typeof tornadoReport) {
-  tReport = e;
+import { Tornado } from "../Tornado";
+const tReport: any[] = [];
+export function TableComponent(e: (typeof Tornado)[]) {
+  e.map((t) => {
+    tReport.push(t);
+  });
 }
 
 const table = (
