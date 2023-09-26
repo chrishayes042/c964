@@ -1,14 +1,31 @@
-import { getAllData, getTornadoDecadeData } from "../Api";
+import { getAllData, getTornadoDecadeData, getPredictData } from "../Api";
 import { Tornado, TornadoDecadeData, tornadoReport } from "../Tornado";
 import { ChartData } from "../ChartData";
 import { useState, useEffect } from "react";
+import Slider, { SliderToolTip } from "rc-slider";
+import Dropdown from "react-dropdown";
+import "react-dropdown/style.css";
 
+import "rc-slider/assets/index.css";
 function TableData() {
   const [tableData, setTableData] = useState<Tornado[]>();
   const [tableDecadeData, setTableDecadeData] = useState<TornadoDecadeData[]>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const [predictValue, setPredictValue] = useState(0);
+  const [stateValue, setStateValue] = useState("OK");
+  const stateMap = new Map<string, Tornado>();
+  const marks = {
+    2020: "2020",
+    2030: "2030",
+    2040: "2040",
+    2050: "2050",
+    2060: "2060",
+    2070: "2070",
+    2080: "2080",
+    2090: "2090",
+    3000: "3000",
+  };
   async function setData() {
     try {
       setLoading(true);
@@ -20,25 +37,67 @@ function TableData() {
       setError(e);
     } finally {
       setLoading(false);
-      dataForTable();
     }
   }
   useEffect(() => {
     setData();
   }, []);
-  function dataForTable() {
-    const td = tornadoReport;
+
+  type DropDownType = {
+    value: string;
+    states: string;
+  };
+  function dataForStateDropDawn() {
+    const statesSet = new Set<string>();
+    const stateList = new Array<DropDownType>();
+    const stateMap = new Map<string, string>();
+    const list = new Array<string>();
     if (!loading) {
       tableData?.map((e, index) => {
         if (index == 0) {
           return;
         } else {
-          td.tornadoReport.push(e);
+          statesSet.add(e.state);
         }
       });
     }
-    return td;
+    let ddt: DropDownType;
+    statesSet.forEach((e) => {
+      list.push(e);
+      ddt = {
+        value: e,
+        states: e,
+      };
+      stateList.push(ddt);
+    });
+
+    return list;
   }
+  const selectStateValue = (e: string) => {
+    try {
+      const val = e;
+      setStateValue(val);
+    }
+    const val = e;
+    setStateValue(val);
+    console.log(stateValue);
+  };
+  const onChangeValueChange = (newValue: number[]) => {
+    setPredictValue(newValue);
+    console.log(newValue);
+  };
+  function prediction() {
+    getPredictionData();
+  }
+  const getPredictionData = async () => {
+    try {
+      const value = await getPredictData();
+    } catch (e: any) {
+      setError(e);
+    } finally {
+      setLoading(false);
+    }
+  };
   function dataForDecadeTable() {
     let td: ChartData;
     const data: ChartData[] = [];
@@ -62,12 +121,13 @@ function TableData() {
   }
   if (error) return <p>Failed To Load Data.</p>;
   return loading ? (
-    <p>Loading...</p>
+    <p>Loading... Please wait, data takes a while to show up</p>
   ) : (
     <>
       <div className="text-lg font-semibold tracking-tight uppercase">
         Main Data for each decade
       </div>
+
       <div className="pb-10">
         <div className="relative overflow-y-auto">
           <table className="w-full mr-12 table-auto ">
@@ -99,6 +159,42 @@ function TableData() {
               );
             })}
           </table>
+        </div>
+        <div className="container pt-10">
+          <Dropdown
+            options={dataForStateDropDawn()}
+            value={stateValue}
+            onChange={(e) => selectStateValue(e.value)}
+            placeholder={"Select a State"}
+          />
+          <p>Change dates to predict future devastation</p>
+          <div className="items-center justify-center w-60">
+            <Slider
+              trackStyle={{ backgroundColor: "black", height: 10 }}
+              railStyle={{ backgroundColor: "lightblue", height: 10 }}
+              handleStyle={{
+                borderColor: "red",
+                height: 20,
+                width: 20,
+                marginLeft: -10,
+                marginTop: -5,
+                backgroundColor: "red",
+              }}
+              marks={marks}
+              step={null}
+              defaultValue={2060}
+              value={predictValue}
+              onChange={(e) => onChangeValueChange(e)}
+              min={2030}
+              max={2090}
+              // value={year}
+            />
+            <div className="pt-5">
+              <button className="h-6 px-8 text-sm text-center text-white uppercase bg-blue-700 border-2 border-blue-700 rounded-md text-blue-50 border-opacity-90 bg-opacity-90 hover:border-blue-900">
+                Predict Devastation
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </>

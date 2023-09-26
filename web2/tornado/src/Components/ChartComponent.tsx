@@ -6,14 +6,9 @@ import {
   YAxis,
   Tooltip,
 } from "recharts";
-import {
-  decadeReports,
-  TornadoDecadeData,
-  Tornado,
-  tornadoReport,
-} from "../Tornado";
+import { TornadoDecadeData } from "../Tornado";
 import { ChartData } from "../ChartData";
-import { Component, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { getTornadoDecadeData } from "../Api";
 
 function AreaChartData() {
