@@ -1,4 +1,4 @@
-import { decadeReports } from "../Tornado";
+import { TornadoDecadeData } from "../Tornado";
 import { ChartData } from "../ChartData";
 import {
   BarChart,
@@ -10,7 +10,6 @@ import {
   ScatterChart,
   Scatter,
   CartesianGrid,
-  ZAxis,
 } from "recharts";
 import { useState, useEffect } from "react";
 import { getTornadoDecadeData } from "../Api";

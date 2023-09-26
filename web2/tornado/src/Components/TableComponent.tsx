@@ -1,8 +1,8 @@
-import { getAllData, getTornadoDecadeData, getPredictData } from "../Api";
-import { Tornado, TornadoDecadeData, tornadoReport } from "../Tornado";
+import { getAllData, getTornadoDecadeData } from "../Api";
+import { Tornado, TornadoDecadeData } from "../Tornado";
 import { ChartData } from "../ChartData";
 import { useState, useEffect } from "react";
-import Slider, { SliderToolTip } from "rc-slider";
+import Slider from "rc-slider";
 import Dropdown from "react-dropdown";
 import "react-dropdown/style.css";
 
@@ -14,7 +14,7 @@ function TableData() {
   const [error, setError] = useState(null);
   const [predictValue, setPredictValue] = useState(0);
   const [stateValue, setStateValue] = useState("OK");
-  const stateMap = new Map<string, Tornado>();
+  // const stateMap = new Map<string, Tornado>();
   const marks = {
     2020: "2020",
     2030: "2030",
@@ -33,6 +33,7 @@ function TableData() {
       const decadeData = await getTornadoDecadeData();
       setTableData(allData);
       setTableDecadeData(decadeData);
+      setPredictValue(20);
     } catch (e: any) {
       setError(e);
     } finally {
@@ -50,7 +51,7 @@ function TableData() {
   function dataForStateDropDawn() {
     const statesSet = new Set<string>();
     const stateList = new Array<DropDownType>();
-    const stateMap = new Map<string, string>();
+    // const stateMap = new Map<string, string>();
     const list = new Array<string>();
     if (!loading) {
       tableData?.map((e, index) => {
@@ -83,22 +84,22 @@ function TableData() {
       console.log(stateValue);
     }
   };
-  const onChangeValueChange = (newValue: number[]) => {
-    setPredictValue(newValue);
-    console.log(newValue);
-  };
-  function prediction() {
-    getPredictionData();
-  }
-  const getPredictionData = async () => {
-    try {
-      const value = await getPredictData();
-    } catch (e: any) {
-      setError(e);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // const onChangeValueChange = (newValue: number[]) => {
+  //   setPredictValue(newValue);
+  //   console.log(newValue);
+  // };
+  // function prediction() {
+  //   getPredictionData();
+  // }
+  // const getPredictionData = async () => {
+  //   try {
+  //     const value = await getPredictData();
+  //   } catch (e: any) {
+  //     setError(e);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
   function dataForDecadeTable() {
     let td: ChartData;
     const data: ChartData[] = [];
@@ -185,7 +186,7 @@ function TableData() {
               step={null}
               defaultValue={2060}
               value={predictValue}
-              onChange={(e) => onChangeValueChange(e)}
+              // onChange={(e) => onChangeValueChange(e)}
               min={2030}
               max={2090}
               // value={year}
