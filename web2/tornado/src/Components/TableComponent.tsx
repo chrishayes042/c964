@@ -77,10 +77,11 @@ function TableData() {
     try {
       const val = e;
       setStateValue(val);
+    } catch (err) {
+      return;
+    } finally {
+      console.log(stateValue);
     }
-    const val = e;
-    setStateValue(val);
-    console.log(stateValue);
   };
   const onChangeValueChange = (newValue: number[]) => {
     setPredictValue(newValue);
