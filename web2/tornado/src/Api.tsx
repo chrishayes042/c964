@@ -22,10 +22,17 @@ export async function getPredictData(): Promise<TornadoDecadeData[]> {
   return predData;
 }
 
-export async function getStateData(state: string): Promise<TornadoReport[]> {
+export async function getStateData(state: string): Promise<Tornado[]> {
   const res = await fetch(
     `http://localhost:3333/api/getStateData?state=${state}`
   );
-  const torn: TornadoReport[] = await res.json();
+  const torn: Tornado[] = await res.json();
+  return torn;
+}
+export async function getStateTotalData(state: string): Promise<Tornado> {
+  const res = await fetch(
+    `http://localhost:3333/api/getStateTotals?state=${state}`
+  );
+  const torn: Tornado = await res.json();
   return torn;
 }

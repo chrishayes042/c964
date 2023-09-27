@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-
+import StateData from "./Components/ChangeStateComponent";
 import PieChartData from "./Components/PieGraphComponent";
 import TableData from "./Components/TableComponent";
 import "./App.css";
@@ -29,10 +29,10 @@ function App() {
           <h1 className="pb-10 font-bold text-green-800 text-8xl">
             Tornado Devastation
           </h1>
-          <div className="">
+          <div className="pb-15">
             <TableData />{" "}
           </div>{" "}
-          <PieChartData />{" "}
+          <PieChartData />
         </div>
       ) : (
         <p>Loading...</p>

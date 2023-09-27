@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"golang.org/x/text/encoding/charmap"
 	"log"
 	"net/http"
 	"os"
@@ -112,10 +113,10 @@ func readStateData(w http.ResponseWriter, r *http.Request) {
 
 	param1 := r.URL.Query().Get("state")
 
-	if param1 != "" {
+	if param1 != "ALL" {
 		f, err := os.Open("./data/stateData/" + param1 + ".csv")
 		if err != nil {
-			log.Fatal("Unable to open file")
+			fmt.Println("Unable to open file")
 		}
 		csvReader := csv.NewReader(f)
 		records, err := csvReader.ReadAll()
@@ -170,6 +171,45 @@ func readStateData(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(tornados)
 	}
 }
+func readStateTotalsData(w http.ResponseWriter, r *http.Request) {
+
+	param1 := r.URL.Query().Get("state")
+
+	if param1 != "" {
+		f, err := os.Open("./data/stateData/totals/" + param1 + "_Tot.csv")
+		if err != nil {
+			log.Fatal("Unable to open file")
+		}
+		csvReader := csv.NewReader(charmap.ISO8859_15.NewDecoder().Reader(f))
+		records, err := csvReader.ReadAll()
+		if err != nil {
+			fmt.Println("Unable to parse file")
+		}
+		// var tornados []model.TornadoStateTotals
+		var b model.TornadoStateTotals
+		// loop through the csv data
+		// m := make(map[string][]model.TornadoData)
+		for _, line := range records {
+			a := model.TornadoStateTotals{
+				Injuries:     line[0],
+				Fatalities:   line[1],
+				PropertyLoss: line[2],
+			}
+
+			// append each loop of data to the types array
+			b = a
+
+		}
+
+		// CORS things
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+		// create the json
+		json.NewEncoder(w).Encode(b)
+	}
+}
 func main() {
 	// create the http server
 	mux := http.NewServeMux()
@@ -177,6 +217,7 @@ func main() {
 	mux.HandleFunc("/api/readAllData", readCsvFile)
 	mux.HandleFunc("/api/getDecadeData", getDecadeData)
 	mux.HandleFunc("/api/getStateData", readStateData)
+	mux.HandleFunc("/api/getStateTotals", readStateTotalsData)
 	// mux.HandleFunc("/api/hello", getHello)
 	// create the listener on port
 	err := http.ListenAndServe(":3333", mux)

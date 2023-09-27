@@ -1,5 +1,5 @@
 import { TornadoDecadeData } from "../Tornado";
-import { ChartData } from "../ChartData";
+import { ChartData, StateTotals } from "../ChartData";
 import {
   BarChart,
   XAxis,

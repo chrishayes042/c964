@@ -1,5 +1,5 @@
 export interface Tornado {
-  id: string;
+  id: number;
   year: string;
   month: string;
   day: string;
@@ -10,9 +10,9 @@ export interface Tornado {
   state: string;
   stateFip: string;
   magnitude: string;
-  injuries: string;
-  fatalities: string;
-  propertyLoss: string;
+  injuries: number;
+  fatalities: number;
+  propertyLoss: number;
   slong: string;
   slat: string;
   elong: string;
