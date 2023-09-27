@@ -32,7 +32,7 @@ function App() {
           <div className="pb-15">
             <TableData />{" "}
           </div>{" "}
-          <PieChartData />
+          {/* <PieChartData /> */}
         </div>
       ) : (
         <p>Loading...</p>

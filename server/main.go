@@ -178,7 +178,7 @@ func readStateTotalsData(w http.ResponseWriter, r *http.Request) {
 	if param1 != "" {
 		f, err := os.Open("./data/stateData/totals/" + param1 + "_Tot.csv")
 		if err != nil {
-			log.Fatal("Unable to open file")
+			fmt.Print("Unable to open file")
 		}
 		csvReader := csv.NewReader(charmap.ISO8859_15.NewDecoder().Reader(f))
 		records, err := csvReader.ReadAll()

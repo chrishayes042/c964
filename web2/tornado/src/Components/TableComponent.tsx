@@ -12,10 +12,22 @@ import Dropdown from "react-dropdown";
 import "react-dropdown/style.css";
 
 import "rc-slider/assets/index.css";
+import {
+  BarChart,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Bar,
+  Legend,
+  ScatterChart,
+  Scatter,
+  CartesianGrid,
+} from "recharts";
 function TableData() {
   const [tableData, setTableData] = useState<Tornado[]>();
   const [tableStateData, setTableStateData] = useState<Tornado[]>();
   const [tableDecadeData, setTableDecadeData] = useState<TornadoDecadeData[]>();
+  const [decadeData, setDecadeData] = useState<TornadoDecadeData[]>();
   const [stateTotals, setStateTotals] = useState<StateTotals>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -41,6 +53,7 @@ function TableData() {
       const decadeData = await getTornadoDecadeData();
       setTableData(allData);
       setTableDecadeData(decadeData);
+
       setPredictValue(20);
     } catch (e: any) {
       setError(e);
@@ -159,7 +172,8 @@ function TableData() {
         setInStateValue(false);
         const allData = await getTornadoDecadeData();
         setTableDecadeData(allData);
-        dataForDecadeTable();
+        const pieData = await getTornadoDecadeData();
+        setDecadeData(pieData);
       } else {
         setInStateValue(true);
         const stateData = await getStateData(stateValue);
@@ -167,12 +181,36 @@ function TableData() {
         setStateTotals(stateTotal);
         setTableStateData(stateData);
         dataForStateTable();
+        dataForPieChart();
+        dataForDecadeTable();
       }
     } catch (e) {
       return;
     } finally {
       setLoading(false);
     }
+  };
+  const dataForPieChart = () => {
+    let chartData: ChartData;
+    const data: any[] = [];
+    if (!loading) {
+      decadeData!.map((e, index) => {
+        if (index == 0) {
+          return;
+        } else {
+          chartData = {
+            year: e.decade,
+            fatalities: e.fatalities,
+            avgmagnitude: e.avgMagnitude,
+            propLoss: e.propertyLoss,
+            injuries: e.injuries,
+          };
+
+          data.push(chartData);
+        }
+      });
+    }
+    return data;
   };
   if (error) return <p>Failed To Load Data.</p>;
   return loading ? (
@@ -273,7 +311,6 @@ function TableData() {
           <div className="text-lg font-semibold tracking-tight uppercase">
             State Data for {stateValue}
           </div>
-
           <div className="pb-10">
             <div className="relative overflow-y-auto max-h-96">
               <table className="w-full mr-12 table-auto max-h-72">
@@ -315,6 +352,46 @@ function TableData() {
               </table>
             </div>
           </div>
+          <div className="flex inline-block">
+            <BarChart
+              width={930}
+              height={550}
+              data={dataForPieChart()}
+              margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+            >
+              <XAxis dataKey={"year"} />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey={"fatalities"} fill="#8884d8" />
+              <Bar dataKey={"injuries"} fill="#82ca9d" />
+              <Bar dataKey={"avgmagnitude"} fill="#ccc" />
+            </BarChart>
+
+            <ScatterChart
+              width={730}
+              height={550}
+              margin={{ top: 20, right: 20, bottom: 10, left: 10 }}
+            >
+              <CartesianGrid strokeDasharray={"3 3"} />
+              <XAxis
+                dataKey={"propLoss"}
+                type="number"
+                name="property loss"
+                unit={"$"}
+              />
+              <YAxis dataKey={"year"} type="date" />
+              {/* <ZAxis dataKey={"propLoss"} type="number" range={[64, 144]} /> */}
+              <Tooltip cursor={{ strokeDasharray: "3 3" }} />
+              <Legend />
+              <Scatter
+                name="Property Loss"
+                data={dataForPieChart()}
+                fill="#8884d8"
+              />
+            </ScatterChart>
+          </div>
+          );
         </>
       )}
     </>
