@@ -43,3 +43,13 @@ type TornadoStateTotals struct {
 	Fatalities   string `json:"fatalities"`
 	PropertyLoss string `json:"propertyLoss"`
 }
+
+type StateDecadeTotals struct {
+	Decade       string `json:"decade"`
+	AvgMagnitude string `json:"avgMagnitude"`
+	Injuries     string `json:"injuries"`
+	Fatalities   string `json:"fatalities"`
+	PropertyLoss string `json:"propertyLoss"`
+	Length       string `json:"length"`
+	Width        string `json:"width"`
+}

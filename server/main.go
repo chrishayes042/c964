@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"golang.org/x/text/encoding/charmap"
 	"log"
 	"net/http"
 	"os"
@@ -180,7 +179,7 @@ func readStateTotalsData(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			fmt.Print("Unable to open file")
 		}
-		csvReader := csv.NewReader(charmap.ISO8859_15.NewDecoder().Reader(f))
+		csvReader := csv.NewReader(f)
 		records, err := csvReader.ReadAll()
 		if err != nil {
 			fmt.Println("Unable to parse file")
@@ -210,6 +209,40 @@ func readStateTotalsData(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(b)
 	}
 }
+func readStateDecadeTotals(w http.ResponseWriter, r *http.Request) {
+	param1 := r.URL.Query().Get("state")
+	if param1 != "" {
+		f, err := os.Open("./data/stateData/decadeTotals/" + param1 + "_Decades.csv")
+		if err != nil {
+			fmt.Println("unable to open file")
+		}
+		csvReader := csv.NewReader(f)
+		records, err := csvReader.ReadAll()
+		if err != nil {
+			fmt.Println("Unable to parse file")
+		}
+		var tList []model.StateDecadeTotals
+		for _, line := range records {
+			a := model.StateDecadeTotals{
+				Decade:       line[0],
+				AvgMagnitude: line[1],
+				Injuries:     line[2],
+				Fatalities:   line[3],
+				PropertyLoss: line[4],
+				Length:       line[5],
+				Width:        line[6],
+			}
+			tList = append(tList, a)
+		}
+		// CORS things
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+		// create the json
+		json.NewEncoder(w).Encode(tList)
+	}
+}
 func main() {
 	// create the http server
 	mux := http.NewServeMux()
@@ -218,6 +251,7 @@ func main() {
 	mux.HandleFunc("/api/getDecadeData", getDecadeData)
 	mux.HandleFunc("/api/getStateData", readStateData)
 	mux.HandleFunc("/api/getStateTotals", readStateTotalsData)
+	mux.HandleFunc("/api/getStateDecadeTotals", readStateDecadeTotals)
 	// mux.HandleFunc("/api/hello", getHello)
 	// create the listener on port
 	err := http.ListenAndServe(":3333", mux)

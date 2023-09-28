@@ -1,4 +1,5 @@
-import { Tornado, TornadoReport, TornadoDecadeData } from "./Tornado";
+import { Tornado, TornadoReport, TornadoDecadeData } from "./types/Tornado";
+import { StateTotals, StateDecadeTotals } from "./types/ChartData";
 
 export async function getAllData(): Promise<Tornado[]> {
   const url = `http://localhost:3333/api/readAllData`;
@@ -29,10 +30,19 @@ export async function getStateData(state: string): Promise<Tornado[]> {
   const torn: Tornado[] = await res.json();
   return torn;
 }
-export async function getStateTotalData(state: string): Promise<Tornado> {
+export async function getStateTotalData(state: string): Promise<StateTotals> {
   const res = await fetch(
     `http://localhost:3333/api/getStateTotals?state=${state}`
   );
-  const torn: Tornado = await res.json();
+  const torn: StateTotals = await res.json();
   return torn;
+}
+export async function getStateDecadeTotalData(
+  state: string
+): Promise<StateDecadeTotals[]> {
+  const res = await fetch(
+    `http://localhost:3333/api/getStateDecadeTotals?state=${state}`
+  );
+  const stateTotals: StateDecadeTotals[] = await res.json();
+  return stateTotals;
 }

@@ -18,7 +18,16 @@ export interface StateChartData {
 }
 
 export interface StateTotals {
-  fatalitiesTotal: string;
-  propLossTotal: string;
-  injuriesTotal: string;
+  fatalities: string;
+  propertyLoss: string;
+  injuries: string;
+}
+export interface StateDecadeTotals {
+  decade: string;
+  avgMagnitude: string;
+  injuries: string;
+  fatalities: string;
+  propertyLoss: string;
+  length: string;
+  width: string;
 }

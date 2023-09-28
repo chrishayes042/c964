@@ -25,13 +25,13 @@ function App() {
   return (
     <>
       {!loading ? (
-        <div className="">
+        <div className="container w-full">
           <h1 className="pb-10 font-bold text-green-800 text-8xl">
             Tornado Devastation
           </h1>
           <div className="pb-15">
-            <TableData />{" "}
-          </div>{" "}
+            <TableData />
+          </div>
           {/* <PieChartData /> */}
         </div>
       ) : (

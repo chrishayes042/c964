@@ -3,9 +3,15 @@ import {
   getTornadoDecadeData,
   getStateData,
   getStateTotalData,
+  getStateDecadeTotalData,
 } from "../Api";
 import { Tornado, TornadoDecadeData } from "../types/Tornado";
-import { ChartData, StateChartData, StateTotals } from "../types/ChartData";
+import {
+  ChartData,
+  StateChartData,
+  StateTotals,
+  StateDecadeTotals,
+} from "../types/ChartData";
 import { useState, useEffect } from "react";
 import Slider from "rc-slider";
 import Dropdown from "react-dropdown";
@@ -22,21 +28,23 @@ import {
   ScatterChart,
   Scatter,
   CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
 } from "recharts";
 function TableData() {
   const [tableData, setTableData] = useState<Tornado[]>();
   const [tableStateData, setTableStateData] = useState<Tornado[]>();
   const [tableDecadeData, setTableDecadeData] = useState<TornadoDecadeData[]>();
   const [decadeData, setDecadeData] = useState<TornadoDecadeData[]>();
-  const [stateTotals, setStateTotals] = useState<StateTotals>();
+  const [stateTotals, setStateTotals] = useState<StateDecadeTotals[]>();
+  const [stateTotalsSingle, setStateTotalsSingle] = useState<StateTotals>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [predictValue, setPredictValue] = useState(0);
   const [inStateValue, setInStateValue] = useState(false);
   const [stateValue, setStateValue] = useState("");
-  // const stateMap = new Map<string, Tornado>();
   const marks = {
-    2020: "2020",
     2030: "2030",
     2040: "2040",
     2050: "2050",
@@ -44,15 +52,14 @@ function TableData() {
     2070: "2070",
     2080: "2080",
     2090: "2090",
-    3000: "3000",
   };
   async function setData() {
     try {
       setLoading(true);
       const allData = await getAllData();
-      const decadeData = await getTornadoDecadeData();
+      const decadeDataApi = await getTornadoDecadeData();
       setTableData(allData);
-      setTableDecadeData(decadeData);
+      setTableDecadeData(decadeDataApi);
 
       setPredictValue(20);
     } catch (e: any) {
@@ -113,8 +120,6 @@ function TableData() {
       setStateValue(val);
     } catch (err) {
       return;
-    } finally {
-      console.log(stateValue);
     }
   };
 
@@ -177,11 +182,13 @@ function TableData() {
       } else {
         setInStateValue(true);
         const stateData = await getStateData(stateValue);
-        const stateTotal = await getStateTotalData(stateValue);
+        const stateTotal = await getStateDecadeTotalData(stateValue);
+        const stateSingle = await getStateTotalData(stateValue);
         setStateTotals(stateTotal);
+        setStateTotalsSingle(stateSingle);
         setTableStateData(stateData);
+        dataForStateCharts();
         dataForStateTable();
-        dataForPieChart();
         dataForDecadeTable();
       }
     } catch (e) {
@@ -189,6 +196,22 @@ function TableData() {
     } finally {
       setLoading(false);
     }
+  };
+  const dataForStateCharts = () => {
+    const data: any[] = [];
+    if (inStateValue && !loading) {
+      stateTotals?.map((e) => {
+        data.push(e);
+      });
+    }
+    return data;
+  };
+  const DataForStateTable = () => {
+    const data: any[] = [];
+    if (inStateValue && !loading) {
+      data.push(stateTotalsSingle);
+    }
+    return data;
   };
   const dataForPieChart = () => {
     let chartData: ChartData;
@@ -270,7 +293,7 @@ function TableData() {
           </div>
 
           <div className="pb-10">
-            <div className="relative overflow-y-auto">
+            <div className="overflow-y-auto ">
               <table className="w-full mr-12 table-auto max-h-72">
                 <thead className="text-sm text-gray-700 uppercase rounded-lg bg-gray-50">
                   <tr>
@@ -312,7 +335,7 @@ function TableData() {
             State Data for {stateValue}
           </div>
           <div className="pb-10">
-            <div className="relative overflow-y-auto max-h-96">
+            <div className="w-full overflow-y-auto max-h-96">
               <table className="w-full mr-12 table-auto max-h-72">
                 <thead className="text-sm text-gray-700 uppercase rounded-lg bg-gray-50">
                   <tr>
@@ -325,7 +348,6 @@ function TableData() {
                     <th className="px-6 py-3">Property Loss</th>
                   </tr>
                 </thead>
-
                 {dataForStateTable()!.map((obj) => {
                   return (
                     <tbody className="bg-gray-100 border-t border-gray-500 hover:bg-green-200 hover:text-emerald-700">
@@ -337,61 +359,110 @@ function TableData() {
                         <td> {obj.injuries} </td>
                         <td> {obj.fatalities} </td>
                         <td> {"$" + obj.propLoss} </td>
-                        {/* <td>
-                          {" "}
-                          {"$ " +
-                            obj.propLoss.replace(
-                              /\B(?=(\d{3})+(?!\d))/g,
-                              ","
-                            )}{" "}
-                        </td> */}
                       </tr>
                     </tbody>
                   );
                 })}
               </table>
             </div>
+            <table className="w-full mr-12 table-auto max-h-72">
+              <thead className="text-sm text-gray-700 uppercase rounded-lg bg-gray-50">
+                <tr>
+                  <th className=""></th>
+                  <th className=""></th>
+                  <th className=""></th>
+                  <th className=""></th>
+                  <th className="">Injuries</th>
+                  <th className="">Fatalities</th>
+                  <th className="">Property Loss</th>
+                </tr>
+              </thead>
+              {DataForStateTable()!.map((e) => {
+                return (
+                  <tbody className="bg-gray-100 border-t border-gray-500 hover:bg-green-200 hover:text-emerald-700">
+                    <tr className="">
+                      <td className="px-6 py-3"> </td>
+                      <td className="px-2 py-1"> </td>
+                      <td className="px-6 py-1"> </td>
+                      <td className="px-6 py-1"> {"Totals:"} </td>
+                      <td className="px-6 py-1 text-center">{e.injuries}</td>
+                      <td className="py-1 px-7"> {e.fatalities} </td>
+                      <td className="px-2 py-1"> {"$" + e.propertyLoss} </td>
+                    </tr>
+                  </tbody>
+                );
+              })}
+            </table>
           </div>
-          <div className="flex inline-block">
-            <BarChart
-              width={930}
-              height={550}
-              data={dataForPieChart()}
-              margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
-            >
-              <XAxis dataKey={"year"} />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey={"fatalities"} fill="#8884d8" />
-              <Bar dataKey={"injuries"} fill="#82ca9d" />
-              <Bar dataKey={"avgmagnitude"} fill="#ccc" />
-            </BarChart>
+          <div className="flex">
+            <div>
+              <BarChart
+                width={930}
+                height={550}
+                data={dataForStateCharts()}
+                margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+              >
+                <XAxis dataKey={"decade"} />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey={"fatalities"} fill="#8884d8" />
+                <Bar dataKey={"injuries"} fill="#82ca9d" />
+                {/* <Bar dataKey={"propLossTotal"} fill="#ccc" /> */}
+              </BarChart>
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart
+                  width={930}
+                  height={550}
+                  data={dataForStateCharts()}
+                  // margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray={"3 3"} />
+                  <YAxis ticks={[0, 100, 200, 400]} />
+                  <XAxis dataKey={"decade"} />
+                  <Tooltip />
+                  <Legend />
+                  <Line type={"monotone"} dataKey={"width"} stroke="#82ca9d" />
+                  <Line
+                    type={"monotone"}
+                    dataKey={"avgMagnitude"}
+                    stroke="#ccc"
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey={"length"}
+                    stroke="#8884d8"
+                    activeDot={{ r: 8 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            <div>
+              <ScatterChart
+                width={730}
+                height={550}
+                margin={{ top: 20, right: 20, bottom: 10, left: 10 }}
+              >
+                <CartesianGrid strokeDasharray={"3 3"} />
+                <XAxis
+                  dataKey={"propertyLoss"}
+                  type="number"
+                  name="property loss"
+                  unit={"$"}
+                />
 
-            <ScatterChart
-              width={730}
-              height={550}
-              margin={{ top: 20, right: 20, bottom: 10, left: 10 }}
-            >
-              <CartesianGrid strokeDasharray={"3 3"} />
-              <XAxis
-                dataKey={"propLoss"}
-                type="number"
-                name="property loss"
-                unit={"$"}
-              />
-              <YAxis dataKey={"year"} type="date" />
-              {/* <ZAxis dataKey={"propLoss"} type="number" range={[64, 144]} /> */}
-              <Tooltip cursor={{ strokeDasharray: "3 3" }} />
-              <Legend />
-              <Scatter
-                name="Property Loss"
-                data={dataForPieChart()}
-                fill="#8884d8"
-              />
-            </ScatterChart>
+                <YAxis dataKey={"avgMagnitude"} type="number" />
+                {/* <ZAxis dataKey={"propLoss"} type="number" range={[64, 144]} /> */}
+                <Tooltip cursor={{ strokeDasharray: "3 3" }} />
+                <Legend />
+                <Scatter
+                  name="Property Loss"
+                  data={dataForStateCharts()}
+                  fill="#8884d8"
+                />
+              </ScatterChart>
+            </div>
           </div>
-          );
         </>
       )}
     </>
