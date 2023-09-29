@@ -14,6 +14,7 @@ import {
 } from "../types/ChartData";
 import { useState, useEffect } from "react";
 import Slider from "rc-slider";
+import AreaChartData from "./ChartComponent";
 import Dropdown from "react-dropdown";
 import "react-dropdown/style.css";
 
@@ -200,10 +201,12 @@ function TableData() {
   const dataForStateCharts = () => {
     const data: any[] = [];
     if (inStateValue && !loading) {
+      console.log(stateTotals);
       stateTotals?.map((e) => {
         data.push(e);
       });
     }
+
     return data;
   };
   const DataForStateTable = () => {
@@ -215,9 +218,9 @@ function TableData() {
   };
   const dataForPieChart = () => {
     let chartData: ChartData;
-    const data: any[] = [];
+    const data: ChartData[] = [];
     if (!loading) {
-      decadeData!.map((e, index) => {
+      stateTotals!.map((e, index) => {
         if (index == 0) {
           return;
         } else {
@@ -279,7 +282,7 @@ function TableData() {
             // value={year}
           />
           <div className="pt-5">
-            <button className="h-6 px-8 text-sm text-center text-white uppercase bg-blue-700 border-2 border-blue-700 rounded-md text-blue-50 border-opacity-90 bg-opacity-90 hover:border-blue-900">
+            <button className="h-6 px-8 text-sm text-center uppercase bg-blue-700 border-2 border-blue-700 rounded-md text-blue-50 border-opacity-90 bg-opacity-90 hover:border-blue-900">
               Predict Devastation
             </button>
           </div>
@@ -461,6 +464,7 @@ function TableData() {
                   fill="#8884d8"
                 />
               </ScatterChart>
+              <AreaChartData {...stateTotals} />
             </div>
           </div>
         </>
