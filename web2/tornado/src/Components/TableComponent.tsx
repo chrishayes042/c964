@@ -16,8 +16,7 @@ import {
 } from "../types/ChartData";
 import { useState, useEffect } from "react";
 import Slider from "rc-slider";
-import ReactSlider from "react-slider";
-import AreaChartData from "./ChartComponent";
+
 import Dropdown from "react-dropdown";
 import "react-dropdown/style.css";
 import "rc-slider/assets/index.css";
@@ -47,7 +46,7 @@ function TableData() {
   const [isPrediction, setIsPrediction] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [predictValue, setPredictValue] = useState("");
+  const [predictValue, setPredictValue] = useState("2050");
   const [inStateValue, setInStateValue] = useState(false);
   const [stateValue, setStateValue] = useState("");
 
@@ -619,7 +618,7 @@ function TableData() {
                     >
                       <CartesianGrid strokeDasharray={"3 3"} />
                       <YAxis ticks={[0, 100, 200, 400]} />
-                      <XAxis dataKey={"decade"} />
+                      <XAxis dataKey={"avgMag"} />
                       <Tooltip />
                       <Legend />
                       <Line
