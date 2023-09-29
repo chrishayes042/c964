@@ -2,4 +2,6 @@ module chrishayes042
 
 go 1.19
 
-require golang.org/x/text v0.13.0 // indirect
+require github.com/sajari/regression v1.0.1
+
+require gonum.org/v1/gonum v0.14.0 // indirect

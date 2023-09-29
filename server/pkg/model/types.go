@@ -53,3 +53,21 @@ type StateDecadeTotals struct {
 	Length       string `json:"length"`
 	Width        string `json:"width"`
 }
+
+type StatePredictTotals struct {
+	Length       []float64 `json:"length"`
+	Width        []float64 `json:"width"`
+	AvgMag       []float64 `json:"avgMag"`
+	PropertyLoss []float64 `json:"propLoss"`
+	Fatalities   []float64 `json:"fatalities"`
+	Injuries     []float64 `json:"injuries"`
+}
+type Predictions struct {
+	Decade     string  `json:"decade"`
+	Length     float64 `json:"length"`
+	Width      float64 `json:"width"`
+	AvgMag     float64 `json:"avgMag"`
+	PropLoss   float64 `json:"propLoss"`
+	Fatalities float64 `json:"fatalities"`
+	Injuries   float64 `json:"injuries"`
+}

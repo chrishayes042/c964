@@ -17,7 +17,6 @@ import Slider from "rc-slider";
 import AreaChartData from "./ChartComponent";
 import Dropdown from "react-dropdown";
 import "react-dropdown/style.css";
-
 import "rc-slider/assets/index.css";
 import {
   BarChart,
@@ -464,7 +463,7 @@ function TableData() {
                   fill="#8884d8"
                 />
               </ScatterChart>
-              <AreaChartData {...stateTotals} />
+              {/* <AreaChartData {...stateTotals} /> */}
             </div>
           </div>
         </>

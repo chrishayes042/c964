@@ -2,6 +2,7 @@ package main
 
 import (
 	"chrishayes042/pkg/model"
+	"chrishayes042/pkg/regression"
 	"encoding/csv"
 	"encoding/json"
 	"errors"
@@ -9,6 +10,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
+	// "github.com/sajari/regression"
 )
 
 // Main read method. This will get all of the data in the csv file
@@ -122,6 +125,7 @@ func readStateData(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Fatal("Unable to parse file")
 		}
+
 		var tornados []model.TornadoData
 		// loop through the csv data
 		// m := make(map[string][]model.TornadoData)
@@ -221,6 +225,7 @@ func readStateDecadeTotals(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			fmt.Println("Unable to parse file")
 		}
+
 		var tList []model.StateDecadeTotals
 		for _, line := range records {
 			a := model.StateDecadeTotals{
@@ -234,6 +239,7 @@ func readStateDecadeTotals(w http.ResponseWriter, r *http.Request) {
 			}
 			tList = append(tList, a)
 		}
+
 		// CORS things
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
@@ -243,8 +249,319 @@ func readStateDecadeTotals(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(tList)
 	}
 }
+func regressionMag(records [][]string) []float64 {
+	var magList []float64
+	r := new(regression.Regression)
+	r.SetObserved("Avg Mag")
+
+	r.SetVar(0, "Avg Len")
+	r.SetVar(1, "Avg Wid")
+	// var tList []string
+	for _, line := range records {
+
+		l := string(line[5])
+		w := string(line[6])
+		m := string(line[1])
+		if l != "NA" && w != "NA" && m != "NA" {
+
+			pl, err := strconv.ParseFloat(l, 64)
+			if err != nil {
+				fmt.Print("Unable to parse string" + err.Error())
+			}
+
+			wy, err := strconv.ParseFloat(w, 64)
+			if err != nil {
+				fmt.Print("Unable to parse string")
+			}
+			am, err := strconv.ParseFloat(m, 64)
+			if err != nil {
+				fmt.Print("Unable to parse string")
+			}
+			r.Train(
+				regression.DataPoint(am, []float64{pl, wy}),
+			)
+		}
+	}
+
+	r.Run()
+	// var propLosslist []float64
+	list := r.Predictions()
+	fmt.Println(r.String())
+	magList = append(magList, list...)
+
+	return magList
+}
+func regressionWidth(records [][]string) []float64 {
+	var widList []float64
+	r := new(regression.Regression)
+	r.SetObserved("width")
+
+	r.SetVar(0, "Avg Len")
+	r.SetVar(1, "Avg Mag")
+	// var tList []string
+	for _, line := range records {
+
+		l := string(line[5])
+		w := string(line[6])
+		m := string(line[1])
+		if l != "NA" && w != "NA" && m != "NA" {
+
+			pl, err := strconv.ParseFloat(l, 64)
+			if err != nil {
+				fmt.Print("Unable to parse string" + err.Error())
+			}
+
+			wy, err := strconv.ParseFloat(w, 64)
+			if err != nil {
+				fmt.Print("Unable to parse string")
+			}
+			am, err := strconv.ParseFloat(m, 64)
+			if err != nil {
+				fmt.Print("Unable to parse string")
+			}
+			r.Train(
+				regression.DataPoint(wy, []float64{pl, am}),
+			)
+		}
+	}
+
+	r.Run()
+	// var propLosslist []float64
+	list := r.Predictions()
+	fmt.Println(r.String())
+	widList = append(widList, list...)
+
+	return widList
+}
+func regressionLength(records [][]string) []float64 {
+	var lenList []float64
+	r := new(regression.Regression)
+	r.SetObserved("Length")
+
+	r.SetVar(0, "Avg Wid")
+	r.SetVar(1, "Avg Mag")
+	// var tList []string
+	for _, line := range records {
+
+		l := string(line[5])
+		w := string(line[6])
+		m := string(line[1])
+		if l != "NA" && w != "NA" && m != "NA" {
+
+			pl, err := strconv.ParseFloat(l, 64)
+			if err != nil {
+				fmt.Print("Unable to parse string" + err.Error())
+			}
+
+			wy, err := strconv.ParseFloat(w, 64)
+			if err != nil {
+				fmt.Print("Unable to parse string")
+			}
+			am, err := strconv.ParseFloat(m, 64)
+			if err != nil {
+				fmt.Print("Unable to parse string")
+			}
+			r.Train(
+				regression.DataPoint(pl, []float64{wy, am}),
+			)
+		}
+	}
+
+	r.Run()
+	// var propLosslist []float64
+	list := r.Predictions()
+	fmt.Println(r.String())
+	lenList = append(lenList, list...)
+
+	return lenList
+}
+func regressionFatalities(records [][]string) []float64 {
+	var fatalList []float64
+	r := new(regression.Regression)
+	r.SetObserved("Fatalities")
+
+	r.SetVar(0, "Avg Len")
+	r.SetVar(1, "Avg Wid")
+	r.SetVar(2, "Avg Mag")
+	// var tList []string
+	for _, line := range records {
+		p := string(line[3])
+		l := string(line[5])
+		w := string(line[6])
+		m := string(line[1])
+		if p != "NA" && l != "NA" && w != "NA" && m != "NA" {
+
+			pl, err := strconv.ParseFloat(p, 64)
+			if err != nil {
+				fmt.Print("Unable to parse string" + err.Error())
+			}
+			lm, err := strconv.ParseFloat(l, 64)
+			if err != nil {
+				fmt.Print("Unable to parse string")
+			}
+			wy, err := strconv.ParseFloat(w, 64)
+			if err != nil {
+				fmt.Print("Unable to parse string")
+			}
+			am, err := strconv.ParseFloat(m, 64)
+			if err != nil {
+				fmt.Print("Unable to parse string")
+			}
+			r.Train(
+				regression.DataPoint(pl, []float64{lm, wy, am}),
+			)
+		}
+	}
+
+	r.Run()
+	// var propLosslist []float64
+	list := r.Predictions()
+	fmt.Println(r.String())
+	fatalList = append(fatalList, list...)
+
+	return fatalList
+}
+func regressionInjuries(records [][]string) []float64 {
+	var injuryList []float64
+	r := new(regression.Regression)
+	r.SetObserved("Injuries")
+
+	r.SetVar(0, "Avg Len")
+	r.SetVar(1, "Avg Wid")
+	r.SetVar(2, "Avg Mag")
+	// var tList []string
+	for _, line := range records {
+		p := string(line[2])
+		l := string(line[5])
+		w := string(line[6])
+		m := string(line[1])
+		if p != "NA" && l != "NA" && w != "NA" && m != "NA" {
+
+			pl, err := strconv.ParseFloat(p, 64)
+			if err != nil {
+				fmt.Print("Unable to parse string" + err.Error())
+			}
+			lm, err := strconv.ParseFloat(l, 64)
+			if err != nil {
+				fmt.Print("Unable to parse string")
+			}
+			wy, err := strconv.ParseFloat(w, 64)
+			if err != nil {
+				fmt.Print("Unable to parse string")
+			}
+			am, err := strconv.ParseFloat(m, 64)
+			if err != nil {
+				fmt.Print("Unable to parse string")
+			}
+			r.Train(
+				regression.DataPoint(pl, []float64{lm, wy, am}),
+			)
+		}
+	}
+
+	r.Run()
+	// var propLosslist []float64
+	list := r.Predictions()
+	fmt.Println(r.String())
+	injuryList = append(injuryList, list...)
+
+	return injuryList
+}
+func regressionsPropLoss(records [][]string) []float64 {
+	var propLossList []float64
+
+	r := new(regression.Regression)
+	r.SetObserved("Property Loss")
+
+	r.SetVar(0, "Avg Len")
+	r.SetVar(1, "Avg Wid")
+	r.SetVar(2, "Avg Mag")
+	// var tList []string
+	for _, line := range records {
+		p := string(line[4])
+		l := string(line[5])
+		w := string(line[6])
+		m := string(line[1])
+		if p != "NA" && l != "NA" && w != "NA" && m != "NA" {
+
+			pl, err := strconv.ParseFloat(p, 64)
+			if err != nil {
+				fmt.Print("Unable to parse string" + err.Error())
+			}
+			lm, err := strconv.ParseFloat(l, 64)
+			if err != nil {
+				fmt.Print("Unable to parse string")
+			}
+			wy, err := strconv.ParseFloat(w, 64)
+			if err != nil {
+				fmt.Print("Unable to parse string")
+			}
+			am, err := strconv.ParseFloat(m, 64)
+			if err != nil {
+				fmt.Print("Unable to parse string")
+			}
+			r.Train(
+				regression.DataPoint(pl, []float64{lm, wy, am}),
+			)
+		}
+	}
+
+	r.Run()
+	fmt.Print(r.String())
+	// var propLosslist []float64
+	list := r.Predictions()
+	// fmt.Println(r.GetPredictData())
+	propLossList = append(propLossList, list...)
+
+	return propLossList
+}
+func getAllRegression(w http.ResponseWriter, r *http.Request) {
+	param1 := r.URL.Query().Get("state")
+	if param1 != "" {
+		f, err := os.Open("./data/stateData/decadeTotals/" + param1 + "_Decades.csv")
+		if err != nil {
+			fmt.Println("unable to open file")
+		}
+		csvReader := csv.NewReader(f)
+		records, err := csvReader.ReadAll()
+		if err != nil {
+			fmt.Println("Unable to parse file")
+		}
+		injList := regressionInjuries(records)
+		magList := regressionMag(records)
+		fatalList := regressionFatalities(records)
+		lenList := regressionLength(records)
+		widList := regressionWidth(records)
+		propLossList := regressionsPropLoss(records)
+		var yearList = [12]string{"2030", "2040", "2050", "2060", "2070", "2080", "2090", "3000", "3010", "3020", "3040", "3050"}
+		var predicions []model.Predictions
+		for i := 0; i < len(lenList); i++ {
+			b := model.Predictions{
+				Decade:     yearList[i],
+				Length:     lenList[i],
+				Width:      widList[i],
+				AvgMag:     magList[i],
+				PropLoss:   propLossList[i],
+				Fatalities: fatalList[i],
+				Injuries:   injList[i],
+			}
+
+			predicions = append(predicions, b)
+		}
+
+		// CORS things
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+		// create the json
+		json.NewEncoder(w).Encode(predicions)
+	}
+}
+
 func main() {
 	// create the http server
+	// Test()
 	mux := http.NewServeMux()
 	// create the endpoint to hit to get the csv data
 	mux.HandleFunc("/api/readAllData", readCsvFile)
@@ -252,6 +569,7 @@ func main() {
 	mux.HandleFunc("/api/getStateData", readStateData)
 	mux.HandleFunc("/api/getStateTotals", readStateTotalsData)
 	mux.HandleFunc("/api/getStateDecadeTotals", readStateDecadeTotals)
+	mux.HandleFunc("/api/getPredictionTotals", getAllRegression)
 	// mux.HandleFunc("/api/hello", getHello)
 	// create the listener on port
 	err := http.ListenAndServe(":3333", mux)
