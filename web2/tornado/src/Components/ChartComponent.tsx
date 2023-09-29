@@ -21,12 +21,10 @@ export default function AreaChartData(data: any[]) {
 
   const sortDataForChart = () => {
     const list: any[] = [];
-    console.log(totals);
 
     for (const k in totals) {
       list.push(totals[k]);
     }
-    console.log(list);
     return list;
   };
   {
