@@ -31,3 +31,12 @@ export interface StateDecadeTotals {
   length: string;
   width: string;
 }
+export interface TornadoPrediction {
+  decade: string;
+  length: number;
+  width: number;
+  avgMag: number;
+  propLoss: number;
+  fatalities: number;
+  injuries: number;
+}

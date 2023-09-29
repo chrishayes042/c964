@@ -1,5 +1,9 @@
 import { Tornado, TornadoReport, TornadoDecadeData } from "./types/Tornado";
-import { StateTotals, StateDecadeTotals } from "./types/ChartData";
+import {
+  StateTotals,
+  StateDecadeTotals,
+  TornadoPrediction,
+} from "./types/ChartData";
 
 export async function getAllData(): Promise<Tornado[]> {
   const url = `http://localhost:3333/api/readAllData`;
@@ -45,4 +49,13 @@ export async function getStateDecadeTotalData(
   );
   const stateTotals: StateDecadeTotals[] = await res.json();
   return stateTotals;
+}
+export async function getStatePredictionData(
+  state: string
+): Promise<TornadoPrediction[]> {
+  const res = await fetch(
+    `http://localhost:3333/api/getPredictionTotals?state=${state}`
+  );
+  const totals: TornadoPrediction[] = await res.json();
+  return totals;
 }

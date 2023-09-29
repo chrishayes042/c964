@@ -46,3 +46,19 @@ export interface DecadeReport {
 export const decadeReports: DecadeReport = {
   decadeReport: [],
 };
+
+// export interface TornadoPrediction {
+//   decade: string;
+//   length: number;
+//   width: number;
+//   avgMag: number;
+//   propLoss: number;
+//   fatalities: number;
+//   injuries: number;
+// }
+// export interface TornadoPredictions {
+//   tornadoPredictions: TornadoPrediction[];
+// }
+// export const tornadoPredictions: TornadoPredictions = {
+//   tornadoPredictions: [],
+// };

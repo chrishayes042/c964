@@ -8,10 +8,10 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"math"
 	"net/http"
 	"os"
 	"strconv"
-	// "github.com/sajari/regression"
 )
 
 // Main read method. This will get all of the data in the csv file
@@ -541,9 +541,9 @@ func getAllRegression(w http.ResponseWriter, r *http.Request) {
 				Length:     lenList[i],
 				Width:      widList[i],
 				AvgMag:     magList[i],
-				PropLoss:   propLossList[i],
-				Fatalities: fatalList[i],
-				Injuries:   injList[i],
+				PropLoss:   math.Ceil(propLossList[i]),
+				Fatalities: math.Ceil(fatalList[i]),
+				Injuries:   math.Ceil(injList[i]),
 			}
 
 			predicions = append(predicions, b)
