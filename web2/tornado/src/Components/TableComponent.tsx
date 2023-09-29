@@ -292,7 +292,7 @@ function TableData() {
     <p>Loading... Please wait, data may take a while to show up</p>
   ) : (
     <>
-      <div className="flex flex-row w-72">
+      <div className="flex inline-block w-72">
         <div className="pr-5"> State: </div>
         <Dropdown
           options={dataForStateDropDawn()}
@@ -482,7 +482,8 @@ function TableData() {
                     {/* <Bar dataKey={"propLossTotal"} fill="#ccc" /> */}
                   </BarChart>
                   <p className="text-lg font-bold">
-                    Length and Width for Average Magnitude
+                    Length traveled in miles and Width in yards of Tornado for
+                    Average Magnitude
                   </p>
                   <ResponsiveContainer width="100%" height={300}>
                     <LineChart
@@ -606,7 +607,8 @@ function TableData() {
                     {/* <Bar dataKey={"propLossTotal"} fill="#ccc" /> */}
                   </BarChart>
                   <p className="text-lg font-bold">
-                    Length and Width for Average Magnitude
+                    Length traveled in miles and Width in yards of Tornado for
+                    Average Magnitude
                   </p>
                   <ResponsiveContainer width="100%" height={300}>
                     <LineChart
