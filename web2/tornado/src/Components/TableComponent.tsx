@@ -554,7 +554,7 @@ function TableData() {
           ) : (
             <>
               <div className="text-lg font-semibold tracking-tight uppercase">
-                State Prediction Totals Data for {stateValue} up to{" "}
+                State Prediction Totals Data for {stateValue} up to the year{" "}
                 {predictValue}
               </div>
               <div className="pb-10">
