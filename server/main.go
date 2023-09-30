@@ -79,7 +79,7 @@ func readCsvFile(w http.ResponseWriter, r *http.Request) {
 }
 func getDecadeData(w http.ResponseWriter, r *http.Request) {
 	// open the csv
-	f, err := os.Open("decades.csv")
+	f, err := os.Open("./data/decades.csv")
 	if err != nil {
 		log.Fatal("Unable to read input file ", err)
 	}
@@ -469,21 +469,23 @@ func regressionInjuries(records [][]string) []float64 {
 }
 func regressionsPropLoss(records [][]string) []float64 {
 	var propLossList []float64
-
+	// regression
 	r := new(regression.Regression)
+	// Observed
 	r.SetObserved("Property Loss")
-
+	// set the variables
 	r.SetVar(0, "Avg Len")
 	r.SetVar(1, "Avg Wid")
 	r.SetVar(2, "Avg Mag")
-	// var tList []string
+
 	for _, line := range records {
+		// read the data from the csv file
 		p := string(line[4])
 		l := string(line[5])
 		w := string(line[6])
 		m := string(line[1])
 		if p != "NA" && l != "NA" && w != "NA" && m != "NA" {
-
+			// make the string a float type
 			pl, err := strconv.ParseFloat(p, 64)
 			if err != nil {
 				fmt.Print("Unable to parse string" + err.Error())
@@ -500,21 +502,24 @@ func regressionsPropLoss(records [][]string) []float64 {
 			if err != nil {
 				fmt.Print("Unable to parse string")
 			}
+			// train the data through the algorithm
 			r.Train(
 				regression.DataPoint(pl, []float64{lm, wy, am}),
 			)
 		}
 	}
-
+	// run the algorithm
 	r.Run()
 	fmt.Print(r.String())
-	// var propLosslist []float64
+	// Create a list of the predictions
 	list := r.Predictions()
-	// fmt.Println(r.GetPredictData())
+	// set the list to be returned
 	propLossList = append(propLossList, list...)
 
 	return propLossList
 }
+
+// Function that gets all of the data from the regression algorithm
 func getAllRegression(w http.ResponseWriter, r *http.Request) {
 	param1 := r.URL.Query().Get("state")
 	if param1 != "" {
@@ -527,20 +532,25 @@ func getAllRegression(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			fmt.Println("Unable to parse file")
 		}
+		// create the lists of predicitions
 		injList := regressionInjuries(records)
 		magList := regressionMag(records)
 		fatalList := regressionFatalities(records)
 		lenList := regressionLength(records)
 		widList := regressionWidth(records)
 		propLossList := regressionsPropLoss(records)
+		// create list of the future years
 		var yearList = [12]string{"2030", "2040", "2050", "2060", "2070", "2080", "2090", "3000", "3010", "3020", "3040", "3050"}
 		var predicions []model.Predictions
+		// loop through the list. They're all the same length so choose one of them (not yearList)
 		for i := 0; i < len(lenList); i++ {
 			b := model.Predictions{
-				Decade:     yearList[i],
-				Length:     lenList[i],
-				Width:      widList[i],
-				AvgMag:     magList[i],
+				// set the type object
+				Decade: yearList[i],
+				Length: lenList[i],
+				Width:  widList[i],
+				AvgMag: magList[i],
+				// want the ceiling of each of these.
 				PropLoss:   math.Ceil(propLossList[i]),
 				Fatalities: math.Ceil(fatalList[i]),
 				Injuries:   math.Ceil(injList[i]),
@@ -561,9 +571,8 @@ func getAllRegression(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	// create the http server
-	// Test()
 	mux := http.NewServeMux()
-	// create the endpoint to hit to get the csv data
+	// create the endpoint REST API to hit to get the csv data
 	mux.HandleFunc("/api/readAllData", readCsvFile)
 	mux.HandleFunc("/api/getDecadeData", getDecadeData)
 	mux.HandleFunc("/api/getStateData", readStateData)
