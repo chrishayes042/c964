@@ -40,3 +40,12 @@ export interface TornadoPrediction {
   fatalities: number;
   injuries: number;
 }
+export interface TornadoResidual {
+  decade: string;
+  lenRes: number;
+  widRes: number;
+  avgMagRes: number;
+  propLossRes: number;
+  fatalRes: number;
+  injRes: number;
+}

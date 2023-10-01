@@ -32,6 +32,7 @@ type Regression struct {
 	crosses           []featureCross
 	hasRun            bool
 	prediction        describe
+	residuals         describe
 }
 
 type dataPoint struct {
@@ -44,6 +45,7 @@ type describe struct {
 	obs  string
 	vars map[int]string
 	pred []float64
+	res  []float64
 }
 
 // DataPoints is a slice of *dataPoint
@@ -87,6 +89,12 @@ func (r *Regression) SetPrediction(prediction []float64) {
 }
 func (r *Regression) GetPredictData() []float64 {
 	return r.prediction.pred
+}
+func (r *Regression) GetResiduals() []float64 {
+	return r.residuals.res
+}
+func (r *Regression) SetResidual(residuals []float64) {
+	r.residuals.res = residuals
 }
 
 // SetVar sets the name of variable i.
@@ -283,11 +291,14 @@ func (r *Regression) Predictions() []float64 {
 func (r *Regression) calcResiduals() string {
 	str := fmt.Sprintf("Residuals:\nobserved|\tPredicted|\tResidual\n")
 	var list []float64
+	var resList []float64
 	for _, d := range r.data {
 		list = append(list, d.Predicted)
+		resList = append(resList, d.Observed-d.Predicted)
 		str += fmt.Sprintf("%.2f|\t%.2f|\t%.2f\n", d.Observed, d.Predicted, d.Observed-d.Predicted)
 	}
 	r.SetPrediction(list)
+	r.SetResidual(resList)
 	// fmt.Println(list)
 	str += "\n"
 	return str
@@ -307,7 +318,7 @@ func (r *Regression) String() string {
 	if !r.initialised {
 		return ErrNotEnoughData.Error()
 	}
-	str := fmt.Sprintf("%v , this %.2f", r.GetObserved(), r.GetPredictData())
+	str := fmt.Sprintf("%v", r.GetObserved())
 	for i := 0; i < len(r.names.vars); i++ {
 		str += fmt.Sprintf("|\t%v", r.GetVar(i))
 	}

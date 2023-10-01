@@ -3,8 +3,10 @@ import {
   StateTotals,
   StateDecadeTotals,
   TornadoPrediction,
+  TornadoResidual,
 } from "./types/ChartData";
-
+// localhost:3333
+// chrishayesc964.wafflecoder.net:3333
 export async function getAllData(): Promise<Tornado[]> {
   const url = `http://chrishayesc964.wafflecoder.net:3333/api/readAllData`;
   const res = await fetch(url);
@@ -63,5 +65,12 @@ export async function getStatePredictionData(
     `http://chrishayesc964.wafflecoder.net:3333/api/getPredictionTotals?state=${state}`
   );
   const totals: TornadoPrediction[] = await res.json();
+  return totals;
+}
+export async function getStateResiduals(): Promise<TornadoResidual[]> {
+  const res = await fetch(
+    `http://chrishayesc964.wafflecoder.net:3333/api/getAllResiduals`
+  );
+  const totals: TornadoResidual[] = await res.json();
   return totals;
 }

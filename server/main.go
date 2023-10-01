@@ -14,10 +14,18 @@ import (
 	"strconv"
 )
 
+var MagResList []float64
+var PropLossResList []float64
+var InjuryResList []float64
+var WidResList []float64
+var LenResList []float64
+var FatalResList []float64
+
 // Main read method. This will get all of the data in the csv file
 // and convert it to a JSON to be returned and picked up by the front end
 func readCsvFile(w http.ResponseWriter, r *http.Request) {
 	// open the csv
+	// query the data
 	f, err := os.Open("./data/tornados.csv")
 	if err != nil {
 		log.Fatal("Unable to read input file ", err)
@@ -287,6 +295,7 @@ func regressionMag(records [][]string) []float64 {
 	// var propLosslist []float64
 	list := r.Predictions()
 	fmt.Println(r.String())
+	MagResList = append(MagResList, r.GetResiduals()...)
 	magList = append(magList, list...)
 
 	return magList
@@ -329,6 +338,7 @@ func regressionWidth(records [][]string) []float64 {
 	// var propLosslist []float64
 	list := r.Predictions()
 	fmt.Println(r.String())
+	WidResList = append(WidResList, r.GetResiduals()...)
 	widList = append(widList, list...)
 
 	return widList
@@ -371,6 +381,7 @@ func regressionLength(records [][]string) []float64 {
 	// var propLosslist []float64
 	list := r.Predictions()
 	fmt.Println(r.String())
+	LenResList = append(LenResList, r.GetResiduals()...)
 	lenList = append(lenList, list...)
 
 	return lenList
@@ -417,6 +428,7 @@ func regressionFatalities(records [][]string) []float64 {
 	// var propLosslist []float64
 	list := r.Predictions()
 	fmt.Println(r.String())
+	FatalResList = append(FatalResList, r.GetResiduals()...)
 	fatalList = append(fatalList, list...)
 
 	return fatalList
@@ -463,6 +475,7 @@ func regressionInjuries(records [][]string) []float64 {
 	// var propLosslist []float64
 	list := r.Predictions()
 	fmt.Println(r.String())
+	InjuryResList = append(InjuryResList, r.GetResiduals()...)
 	injuryList = append(injuryList, list...)
 
 	return injuryList
@@ -513,6 +526,7 @@ func regressionsPropLoss(records [][]string) []float64 {
 	fmt.Print(r.String())
 	// Create a list of the predictions
 	list := r.Predictions()
+	PropLossResList = append(PropLossResList, r.GetResiduals()...)
 	// set the list to be returned
 	propLossList = append(propLossList, list...)
 
@@ -539,6 +553,7 @@ func getAllRegression(w http.ResponseWriter, r *http.Request) {
 		lenList := regressionLength(records)
 		widList := regressionWidth(records)
 		propLossList := regressionsPropLoss(records)
+
 		// create list of the future years
 		var yearList = [12]string{"2030", "2040", "2050", "2060", "2070", "2080", "2090", "3000", "3010", "3020", "3040", "3050"}
 		var predicions []model.Predictions
@@ -568,7 +583,30 @@ func getAllRegression(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(predicions)
 	}
 }
-
+func getAllResiduals(w http.ResponseWriter, r *http.Request) {
+	// mag wid len fatal inj prop loss
+	var residuals []model.Residuals
+	var yearList = [12]string{"2030", "2040", "2050", "2060", "2070", "2080", "2090", "3000", "3010", "3020", "3040", "3050"}
+	for i := 0; i < len(PropLossResList); i++ {
+		b := model.Residuals{
+			Decade:      yearList[i],
+			LenRes:      LenResList[i],
+			WidRes:      math.Floor(WidResList[i]),
+			AvgMagRes:   MagResList[i],
+			FatalRes:    math.Floor(FatalResList[i]),
+			InjRes:      math.Floor(InjuryResList[i]),
+			PropLossRes: math.Floor(PropLossResList[i]),
+		}
+		residuals = append(residuals, b)
+	}
+	// CORS things
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	// create the json
+	json.NewEncoder(w).Encode(residuals)
+}
 func main() {
 	// create the http server
 	mux := http.NewServeMux()
@@ -579,6 +617,7 @@ func main() {
 	mux.HandleFunc("/api/getStateTotals", readStateTotalsData)
 	mux.HandleFunc("/api/getStateDecadeTotals", readStateDecadeTotals)
 	mux.HandleFunc("/api/getPredictionTotals", getAllRegression)
+	mux.HandleFunc("/api/getAllResiduals", getAllResiduals)
 	// mux.HandleFunc("/api/hello", getHello)
 	// create the listener on port
 	err := http.ListenAndServe(":3333", mux)

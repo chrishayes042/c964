@@ -71,3 +71,12 @@ type Predictions struct {
 	Fatalities float64 `json:"fatalities"`
 	Injuries   float64 `json:"injuries"`
 }
+type Residuals struct {
+	Decade      string  `json:"decade"`
+	LenRes      float64 `json:"lenRes"`
+	WidRes      float64 `json:"widRes"`
+	AvgMagRes   float64 `json:"avgMagRes"`
+	PropLossRes float64 `json:"propLossRes"`
+	FatalRes    float64 `json:"fatalRes"`
+	InjRes      float64 `json:"injRes"`
+}

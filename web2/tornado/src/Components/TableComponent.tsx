@@ -5,6 +5,7 @@ import {
   getStateTotalData,
   getStateDecadeTotalData,
   getStatePredictionData,
+  getStateResiduals,
 } from "../Api";
 import { Tornado, TornadoDecadeData } from "../types/Tornado";
 import {
@@ -13,6 +14,7 @@ import {
   StateTotals,
   StateDecadeTotals,
   TornadoPrediction,
+  TornadoResidual,
 } from "../types/ChartData";
 import { useState, useEffect } from "react";
 import Slider from "rc-slider";
@@ -43,6 +45,7 @@ function TableData() {
   const [stateTotalsSingle, setStateTotalsSingle] = useState<StateTotals>();
   const [predictionTotals, setPredictionTotals] =
     useState<TornadoPrediction[]>();
+  const [residuals, setResiduals] = useState<TornadoResidual[]>();
   const [isPrediction, setIsPrediction] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -254,6 +257,8 @@ function TableData() {
         setInStateValue(true);
         setIsPrediction(true);
         const totals = await getStatePredictionData(stateValue);
+        const residuals = await getStateResiduals();
+        setResiduals(residuals);
         setPredictionTotals(totals);
         dataForPredictionCharts();
       }
@@ -285,7 +290,29 @@ function TableData() {
     }
     return data;
   };
-
+  const dataForResiduals = () => {
+    let chartData: TornadoResidual;
+    const data: TornadoResidual[] = [];
+    console.log(residuals);
+    if (!loading) {
+      residuals!.map((e) => {
+        chartData = {
+          decade: e.decade,
+          fatalRes: e.fatalRes,
+          avgMagRes: e.avgMagRes,
+          lenRes: e.lenRes,
+          widRes: e.widRes,
+          propLossRes: e.propLossRes,
+          injRes: e.injRes,
+        };
+        // data.push(chartData);
+        if (e.decade == predictValue || e.decade < predictValue) {
+          data.push(chartData);
+        }
+      });
+    }
+    return data;
+  };
   if (error) return <p>Failed To Load Data.</p>;
   return loading ? (
     <p>Loading... Please wait, data may take a while to show up</p>
@@ -586,6 +613,7 @@ function TableData() {
                   </table>
                 </div>
               </div>
+
               <div className="flex">
                 <div>
                   <p className="text-lg font-bold">
@@ -668,6 +696,44 @@ function TableData() {
                     />
                   </ScatterChart>
                   {/* <AreaChartData {...stateTotals} /> */}
+                </div>
+              </div>
+              <p className="text-lg font-bold">
+                Residual Table closer to 0 the more accurate the prediction
+              </p>
+              <div className="pb-10">
+                <div className="w-full overflow-y-auto max-h-96">
+                  <table className="w-full mr-12 table-auto max-h-72">
+                    <thead className="text-sm text-gray-700 uppercase rounded-lg bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3">Decade</th>
+                        <th className="px-6 py-3">
+                          Average Magnitude Residual
+                        </th>
+                        <th className="px-6 py-3">Injuries Residual</th>
+                        <th className="px-6 py-3">Fatalities Residual</th>
+                        <th className="px-6 py-3">Property Loss Residual</th>
+                        <th className="px-6 py-3">Length Residual</th>
+                        <th className="px-6 py-3">Width Residual</th>
+                      </tr>
+                    </thead>
+                    {dataForResiduals()!.map((obj) => {
+                      return (
+                        <tbody className="bg-gray-100 border-t border-gray-500 hover:bg-green-200 hover:text-emerald-700">
+                          <tr className="">
+                            <td className="px-6 py-3"> {obj.decade} </td>
+
+                            <td> {obj.avgMagRes} </td>
+                            <td> {obj.injRes} </td>
+                            <td> {obj.fatalRes} </td>
+                            <td> {obj.propLossRes} </td>
+                            <td> {obj.lenRes}</td>
+                            <td> {obj.widRes}</td>
+                          </tr>
+                        </tbody>
+                      );
+                    })}
+                  </table>
                 </div>
               </div>
             </>
