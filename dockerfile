@@ -12,6 +12,7 @@ RUN apt -y install golang-go nodejs git
 RUN git clone https://github.com/chrishayes042/c964.git
 WORKDIR /code/c964/web2/tornado
 RUN npm i
+EXPOSE 3333
 
 WORKDIR /code/c964/server
 RUN chmod +x /code/run.sh
