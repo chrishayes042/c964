@@ -35,6 +35,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 function TableData() {
+  // states
   const [tableData, setTableData] = useState<Tornado[]>();
   const [tableStateData, setTableStateData] = useState<Tornado[]>();
   const [tableDecadeData, setTableDecadeData] = useState<TornadoDecadeData[]>();
@@ -50,6 +51,7 @@ function TableData() {
   const [inStateValue, setInStateValue] = useState(false);
   const [stateValue, setStateValue] = useState("");
 
+  // set the starting data when page loads
   async function setData() {
     try {
       setLoading(true);
@@ -66,11 +68,12 @@ function TableData() {
   useEffect(() => {
     setData();
   }, []);
-
+  // create type for the dropdown
   type DropDownType = {
     value: string;
     states: string;
   };
+  // create the list for the drop down
   function dataForStateDropDawn() {
     const statesSet = new Set<string>();
     const stateList = new Array<DropDownType>();
@@ -85,7 +88,9 @@ function TableData() {
         }
       });
     }
+    // create the drop down type
     let ddt: DropDownType;
+    // push All into the array
     list.push("All");
     statesSet.forEach((e) => {
       list.push(e);
@@ -95,7 +100,9 @@ function TableData() {
       };
       stateList.push(ddt);
     });
+    // sort list so it's alphabetical
     list.sort((n1, n2) => {
+      // don't want to sort the all
       if (n1 == "All" || n2 == "All") {
         return 0;
       }
@@ -109,6 +116,7 @@ function TableData() {
     });
     return list;
   }
+  // function to set the state value from drop down
   const selectStateValue = (e: string) => {
     try {
       const val = e;
@@ -117,9 +125,12 @@ function TableData() {
       return;
     }
   };
+  // function that sets the date for the prediction
   const selectStatePredictionDate = (e: number) => {
     let val: string;
     val = "";
+    // use switch case because the slider only returns a number 1-8
+    // sets the variable val
     switch (e) {
       case 1:
         val = "2030";
@@ -146,6 +157,8 @@ function TableData() {
         val = "3000";
         break;
     }
+    // set the prediction value
+    // will be a date
     const value = val;
     try {
       setPredictValue(value);
@@ -153,6 +166,9 @@ function TableData() {
       return;
     }
   };
+  // get the data from the state value array
+  // create a chart data type and push it to the list
+  // returns the list into the table data
   function dataForDecadeTable() {
     let td: ChartData;
     const data: ChartData[] = [];
@@ -174,6 +190,7 @@ function TableData() {
       return data;
     }
   }
+  // sort the data into a StateChartData type
   const dataForStateTable = () => {
     let td: StateChartData;
     const data: StateChartData[] = [];

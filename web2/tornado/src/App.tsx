@@ -1,16 +1,24 @@
 import { useEffect, useState } from "react";
-import StateData from "./Components/ChangeStateComponent";
-import PieChartData from "./Components/PieGraphComponent";
 import TableData from "./Components/TableComponent";
 import "./App.css";
 
 function App() {
   const [loading, setLoading] = useState(true);
+  const [login, setLogin] = useState(true);
 
   useEffect(() => {
     getData();
   }, []);
   useEffect(() => {}, []);
+  const isLoggingIn = () => {
+    try {
+      console.log("hello");
+    } catch (e) {
+      return;
+    } finally {
+      setLogin(false);
+    }
+  };
   async function getData() {
     try {
       setLoading(true);
