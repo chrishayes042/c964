@@ -82,11 +82,14 @@ func (r *Regression) SetObserved(name string) {
 func (r *Regression) GetObserved() string {
 	return r.names.obs
 }
-func (r *Regression) SetPrediction(prediction []float64) {
-	r.prediction.pred = prediction
-}
-func (r *Regression) GetPredictData() []float64 {
-	return r.prediction.pred
+
+// GetPredictions returns a list of the prediction value.
+func (r *Regression) GetPredictions() []float64 {
+	var list []float64
+	for _, d := range r.data {
+		list = append(list, d.Predicted)
+	}
+	return list
 }
 
 // SetVar sets the name of variable i.
@@ -243,7 +246,6 @@ func (r *Regression) calcPredicted() string {
 	for i := 0; i < observations; i++ {
 		r.data[i].Predicted, _ = r.Predict(r.data[i].Variables)
 		r.data[i].Error = r.data[i].Predicted - r.data[i].Observed
-		// r.SetPrediction(predicted)
 		output += fmt.Sprintf("%v. observed = %v, Predicted = %v, Error = %v", i, r.data[i].Observed, predicted, r.data[i].Error)
 
 	}
@@ -273,22 +275,11 @@ func (r *Regression) calcR2() string {
 	r.R2 = r.VariancePredicted / r.Varianceobserved
 	return fmt.Sprintf("R2 = %.2f", r.R2)
 }
-func (r *Regression) Predictions() []float64 {
-	var list []float64
-	for _, d := range r.data {
-		list = append(list, d.Predicted)
-	}
-	return list
-}
 func (r *Regression) calcResiduals() string {
 	str := fmt.Sprintf("Residuals:\nobserved|\tPredicted|\tResidual\n")
-	var list []float64
 	for _, d := range r.data {
-		list = append(list, d.Predicted)
 		str += fmt.Sprintf("%.2f|\t%.2f|\t%.2f\n", d.Observed, d.Predicted, d.Observed-d.Predicted)
 	}
-	r.SetPrediction(list)
-	// fmt.Println(list)
 	str += "\n"
 	return str
 }
